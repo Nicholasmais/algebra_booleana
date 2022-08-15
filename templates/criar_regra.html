@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sedac Regras</title>
+</head>
+<body>
+
+    <div>
+    <ol style="border: 1px solid #000 ;">
+        Variaveis: <br>
+        {% for var in content %}
+        <li><button name="{{var[0]}}" onclick="click2('_{{var[0]}}_')">{{var[0]}} </button></li>
+        {% endfor %}
+    </ol>
+    <div>
+        <ul>
+            <li><button name="(" onclick="click2('(')">(</button></li>
+            <li><button name=")" onclick="click2(')')">)</button></li>
+            <li><button name="ou" onclick="click2('ou')">ou</button></li>
+            <li><button name="e" onclick="click2('e')">e</button></li>
+            <li><button name=">" onclick="click2('>')">></button></li>
+            <li><button name="<" onclick="click2('<')"><</button></li>
+            <li><button name="==" onclick="click2('===')">=</button></li>
+            <li><button name="!=" onclick="click2('!=')">!=</button></li>
+            <li> <input type="text" name="lambda_var" id="lambda_var"><button name="lambda_button" onclick="click2(`'${document.getElementById('lambda_var').value}'`)">Adicionar</button></li>
+
+        </ul>
+
+    </div>
+
+    <button onclick="apagar()">Apagar</button> <button onclick="limpar_regra()">Salvar</button>
+    <br>
+    <label style="display: flex;" for="regra">Regra =
+    <p style="margin: 0 0 0 0; margin-inline-start: 0.5em;" id="regra"></p>
+    </label>
+
+
+</div>
+
+    <div id="regra_criada" style="visibility: hidden;">
+
+        Validar: <br>
+
+        {% for var in content %}
+        <li><label name="{{var[0]}}">{{var[0]}}  = 
+            <label>
+                {% if var[1] == "Booleano" %}
+                <input type="radio" name="choice-radio_{{var[0]}}" id="choice-radio_{{var[0]}}">
+                Verdadeiro
+              </label>
+
+              <label>
+                <input type="radio" name="choice-radio_{{var[0]}}" id="choice-radio_{{var[0]}}" checked>
+                Falso
+              </label>
+                {% endif %}
+
+
+                {% if var[1] == "Numérico" %}
+                <input type="number" name="number_{{var[0]}}" id="number_{{var[0]}}">
+
+                {% endif %}
+
+                {% if var[1] == "Texto" %}
+                <label for="text_{{var[0]}}">
+                <input type="text" name="text_{{var[0]}}" id="text_{{var[0]}}">
+
+                </label>
+                {% endif %}
+
+        </li>
+        {% endfor %}
+
+        <button onclick="calcular()">Calcular</button>
+        <p id="eval_id"></p>
+        <p id="eval_response"></p>
+    </div>
+
+<script>
+    var regra = [];
+
+    function adicionar_campo(txt_){
+        let lbl = document.getElementById(`text_op_${txt_}`);
+
+        let txt = document.createElement(`text`);
+        txt.name = `text_${txt_}`;
+        txt.id = `text_${txt_}`;
+
+        lbl.appendChild(txt);
+  
+
+    }
+
+    function click2(char){
+        regra.push(char)
+        document.getElementById("regra").innerHTML = regra.join(" ").replaceAll("_","");
+    }
+
+    function apagar(){
+       regra.pop()
+       document.getElementById("regra").innerHTML = regra.join(" ").replaceAll("_","");
+    }
+
+    function limpar_regra(){
+
+        for (let i = 0 ; i < regra.length;i++){
+       
+            if (regra[i]==="e"){
+                //regra[i] = regra[i].replaceAll("e/i","&&").replaceAll("ou/i","||");
+                regra[i] = "&&";
+            }
+
+            else if (regra[i]==="ou"){
+                regra[i]="||";
+            }
+        }
+        
+        document.getElementById('regra_criada').style.visibility = "visible";
+    }
+
+    function calcular(){
+        var regra_response = regra;
+        const teste = "{{ content | safe }}".replaceAll("[","").replaceAll("]","").replaceAll(`'`,"").split(", ")
+
+        for (let i =0 ; i < '{{num_vars}}'; i++){
+            //console.log(i);     
+            //console.log(`text_op_${teste[i*2]}`);           
+            if (`${teste[i*2 + 1]}` === "Booleano"){
+            if (document.getElementById(`choice-radio_${teste[i*2]}`).checked === true){
+                regra_response = regra_response.join(" ").replaceAll(`_${teste[i*2]}_`,'true').split(" ")
+ 
+            }
+
+            else{
+                regra_response = regra_response.join(" ").replaceAll(`_${teste[i*2]}_`,'false').split(" ");
+
+            }
+        }
+
+            if (`${teste[i*2 + 1]}` === "Numérico"){
+                var_val = document.getElementById(`number_${teste[i*2]}`)
+                regra_response = regra_response.join(" ").replaceAll(`_${teste[i*2]}_`,var_val.value).split(" ")
+
+
+            }
+
+            if (`${teste[i*2 + 1]}` === "Texto"){
+                var_val = document.getElementById(`text_${teste[i*2]}`).value
+                regra_response = regra_response.join(" ").replaceAll(`_${teste[i*2]}_`,`'${var_val}'`).split(" ")
+            }
+
+
+    }
+        //console.log(regra_response.join(" "))
+        document.getElementById("eval_id").innerHTML = regra_response.join(" ");
+        document.getElementById("eval_response").innerHTML = eval(regra_response.join(" ")) ? "vermelho" : "laranja";
+
+
+    }
+
+</script>
+</body>
+</html>

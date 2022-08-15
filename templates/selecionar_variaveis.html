@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sedac Regras</title>
+</head>
+<body>
+    
+    <label for="num_variavel">Número de variáveis: </label>
+    <input type="number" name="num_vars" id="num_variavel">
+    <button onclick="mostrar_variaveis()">OK</button>
+    
+    <div class="bloco_vars"></div>
+    
+    <script>
+    function mostrar_variaveis(){
+    
+        const bloco = document.querySelector(".bloco_vars")
+    const num_var = document.querySelector('#num_variavel').value
+    const form_ = document.createElement("form")
+    form_.setAttribute("action",`editar_algoritmo/num_var=${num_var}`)
+    form_.setAttribute("method","POST")
+
+    bloco.appendChild(form_)
+
+    const num = document.getElementById('num_variavel').value
+    
+
+    for (let i = 0; i < num; i++){
+        let p = document.createElement('p')
+        let input_ = document.createElement('input')
+        let sel_box = document.createElement('select')
+        let box_option_1 = document.createElement('option')
+        let box_option_2 = document.createElement('option')
+        let box_option_3 = document.createElement('option')
+
+        p.innerHTML = `Nome da ${i+1}ª variável : `
+        input_.name = `var_${i}`
+
+        box_option_1.value = "Booleano"
+        box_option_1.text = "Booleano"
+        box_option_2.value = "Numérico"
+        box_option_2.text = "Numérico"
+        box_option_3.value = "Texto"
+        box_option_3.text = "Texto"
+
+        sel_box.appendChild(box_option_1)
+        sel_box.appendChild(box_option_2)
+        sel_box.appendChild(box_option_3)
+
+        sel_box.setAttribute("name",`sel_${i}`)
+
+        form_.appendChild(p)
+        form_.appendChild(input_)
+        form_.appendChild(sel_box)
+
+    }
+    form_.appendChild(document.createElement("br"))
+
+
+    const botao = document.createElement('button')
+
+    botao.setAttribute('id',"btn-id")
+    botao.textContent = 'Continuar'
+
+    form_.appendChild(botao)
+}
+
+
+    </script>
+</body>
+</html>
